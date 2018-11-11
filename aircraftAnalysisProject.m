@@ -63,7 +63,7 @@ Cd0 = Cd20k - Cdi20k;
 
 % 20k - use max velocity at 20k to find max velocity at SL (needed to find Ta)
 figure(1)
-Tr20k = @(v) W./((W./(((.5)*rho20k*(v.^2)) * S))./(Cd0 + (((W./(((.5)*rho20k*(v.^2)) * S)).^2)/(pi*e*AR))));
+Tr20k = @(V) W./((W./(((.5)*rho20k*(V.^2)) * S))./(Cd0 + (((W./(((.5)*rho20k*(V.^2)) * S)).^2)/(pi*e*AR))));
 fplot(Tr20k, [150 900]), title('Thrust Required and Thrust Available vs Velocity at 20,000 [ft]')
 xlabel('Velocity [ft/s]'), ylabel('Thrust [lb_f]'), xlim([0 900]), ylim([0 6000]), grid on, hold on
 Ta20k = Tr20k(V20kTest1);
@@ -73,7 +73,7 @@ TaSL = Ta20k*(rhoSL/rho20k);
 TaSLTable = @(V) TaSL + (0.*V);
 % SL
 figure(2)
-TrSL = @(v) W./((W./(((.5)*rhoSL*(v.^2)) * S))./(Cd0 + (((W./(((.5)*rhoSL*(v.^2)) * S)).^2)/(pi*e*AR))));
+TrSL = @(V) W./((W./(((.5)*rhoSL*(V.^2)) * S))./(Cd0 + (((W./(((.5)*rhoSL*(V.^2)) * S)).^2)/(pi*e*AR))));
 fplot(TrSL, [150 900]), title('Thrust Required and Thrust Available vs Velocity at Sea Level')
 xlabel('Velocity [ft/s]'), ylabel('Thrust [lb_f]'), xlim([0 900]), ylim([0 6000]), grid on, hold on
 fplot(@(V) TaSL+(0.*V), [0 900])
@@ -82,11 +82,33 @@ plot(722.789, TrSL(722.789), 'r*')
 legend('Thrust Required', 'Thrust Available', 'Maximum Velocity at Sea Level','Location', 'southeast'), hold off
 
 % (2) Pr and Pa vs velocity at sea level, 15,000 ft, and 20,000 ft
+% SL
 figure(3)
-PrSL = @(V) TrSL(V)*V;
-PaSL = @(V) TaSL*V;
-fplot(PrSL, [60 850]), hold on, grid on
-fplot(PaSL, [0 850])
+PrSL = @(V) TrSL(V)*V*0.001818;
+PaSL = @(V) TaSL*V*0.001818;
+fplot(PrSL, [60 775]), hold on, grid on
+fplot(PaSL, [0 775]), xlabel('Velocity [ft/s]'), ylabel('Power [hp]')
+title('Power Requred and Power Available vs Velocity at Sea Level')
+legend('Power Required', 'Power Available', 'Location', 'southeast'), hold off
+% 15k
+figure(4)
+Tr15k = @(V) W./((W./(((.5)*rho15k*(V.^2)) * S))./(Cd0 + (((W./(((.5)*rho15k*(V.^2)) * S)).^2)/(pi*e*AR))));
+Ta15k = Ta20k*(rho15k/rho20k);
+Pr15k = @(V) Tr15k(V)*V*0.001818;
+Pa15k = @(V) Ta15k*V*0.001818;
+fplot(Pr15k, [60 775]), hold on, grid on
+fplot(Pa15k, [0 775]), xlabel('Velocity [ft/s]'), ylabel('Power [hp]')
+title('Power Requred and Power Available vs Velocity at 15,000 [ft]')
+legend('Power Required', 'Power Available', 'Location', 'southeast'), hold off
+% 20k
+figure(5)
+Tr20k = @(V) W./((W./(((.5)*rho20k*(V.^2)) * S))./(Cd0 + (((W./(((.5)*rho20k*(V.^2)) * S)).^2)/(pi*e*AR))));
+Pr20k = @(V) Tr20k(V)*V*0.001818;
+Pa20k = @(V) Ta20k*V*0.001818;
+fplot(Pr20k, [60 775]), hold on, grid on
+fplot(Pa20k, [0 775]), xlabel('Velocity [ft/s]'), ylabel('Power [hp]')
+title('Power Requred and Power Available vs Velocity at 20,000 [ft]')
+legend('Power Required', 'Power Available', 'Location', 'southeast'), hold off
 %% Questions and table data
 
 % 1) What's their maximum range, and at what velocity and altitude?
