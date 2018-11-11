@@ -1,4 +1,4 @@
-hold off, close all, clear, clc, format long
+hold off, close all, clear, clc, format shortEng
 % Hydra X6 attack bomber
 
 % Test flight 1 - Max velocity data
@@ -23,12 +23,12 @@ hold off, close all, clear, clc, format long
 % (3) Rate of climb vs velocity at sea level
 
 % Table with info requested by Fury (range, endurance, ceiling)
-% 1) What’s their maximum range, and at what velocity and altitude?
-% 2) What’s their maximum endurance, and at what velocity and altitude?
+% 1) Whatï¿½s their maximum range, and at what velocity and altitude?
+% 2) Whatï¿½s their maximum endurance, and at what velocity and altitude?
 % 3) The helicarrier has an operating altitude of 15,000 ft. If these aircrafts engage the
-% helicarrier, what’s the max duration could they operate?
-% 4) What’s their best absolute and service ceiling? And at what velocities?
-% 5) What’s their max rate of climb at sea level?
+% helicarrier, whatï¿½s the max duration could they operate?
+% 4) Whatï¿½s their best absolute and service ceiling? And at what velocities?
+% 5) Whatï¿½s their max rate of climb at sea level?
 %% General Calculations
 W = 18000; % [lb] THIS IS FULLY FUELED WEIGHT
 span = 50.87; % Tip2tip span [ft]
@@ -113,9 +113,34 @@ title('Rate of Climb at Sea Level')
 plot(4.4088*10^2, 0.6323*10^2, 'r*')
 legend('Rate of Climb at Sea Level', 'Maximum Rate of Climb at Sea Level (63.23 [ft/s])')
 RCSLdataPoints = [400:.01:450; RCSL(400:.01:450)]';
+RateOfClimbSeaLevel = 62.23; %[ft/s]
 %% Questions and table data
+    % Creates MAE200AnalysisAnswers.xlsx file in working directory
 
-% 1) What's their maximum range, and at what velocity and altitude?
+    
+Velocity = [0 0 velAtmaxRC35k velAtMaxRC34k]; % Various Velocities
+% Q1 = [Range Velocity(1,1) Altitude(1,1)];
+% Q2 = [Endurance Velocity(1,2) Altitude(1,3)];
+% Q3 = [Duration]
+Q4 = table([absCeiling Velocity(1,3); serviceCeil Velocity(1,4)]);      %Table for Question 4 Answers
+Q5 = table(RCSL);                                                       %Table for Q5 Answers
 
-% Cl12Cd = (((1/3)*Cd0*pi*e*AR)^(1/4))/((4/3)*Cd0);
-% R = (2*sqrt((2)/(rho8km*S))*(1/ct)*(Cl12Cd)*((Wi.^(1/2))-(Wf.^(1/2))))/1000;
+
+Titles = table({'Question1'; 'Question2'; 'Question3'; 'Question4'; 'Question5'}); %Creates Title Names for .xlsx file
+
+
+%Q1,Q2,Q3,Q4,Q5 Title Writes
+writetable(Titles(1,1),'MAE200AnalysisAnswers.xlsx','WriteVariableNames',0,'Sheet',1,'Range','A1')
+writetable(Titles(2,1),'MAE200AnalysisAnswers.xlsx','WriteVariableNames',0,'Sheet',1,'Range','A6')
+writetable(Titles(3,1),'MAE200AnalysisAnswers.xlsx','WriteVariableNames',0,'Sheet',1,'Range','A11')
+writetable(Titles(4,1),'MAE200AnalysisAnswers.xlsx','WriteVariableNames',0,'Sheet',1,'Range','A16')
+writetable(Titles(5,1),'MAE200AnalysisAnswers.xlsx','WriteVariableNames',0,'Sheet',1,'Range','A21')
+
+
+
+%Q1,Q2,Q3,Q4,Q5 Answer Writes
+% writetable(Q1,'MAE200AnalysisAnswers.xlsx','Sheet',1,'Range','B1')
+% writetable(Q2,'MAE200AnalysisAnswers.xlsx','Sheet',1,'Range','B6')
+% writetable(Q3,'MAE200AnalysisAnswers.xlsx','Sheet',1,'Range','B12')
+% writetable(Q4,'MAE200AnalysisAnswers.xlsx','Sheet',1,'Range','B18')
+% writetable(Q5,'MAE200AnalysisAnswers.xlsx','Sheet',1,'Range','B24')
