@@ -9,7 +9,7 @@
 % Kevin Lang
 %
 % Stephen Penney
-hold off, close all, clear, clc, format long
+hold off, close all,  clear,  clc, format long
 
 %% General Calculations
 
@@ -71,20 +71,11 @@ Pr35k = @(V) Tr35k(V).*V;
 Pa35k = @(V) Ta35k.*V;
 RC35k = @(V)(Pa35k(V)-Pr35k(V))/W;
 
-%% Problem 1
+%%
 
-
-V = 0:1:800;
-rho = (2.3679*10^-3):-0.00000203712:(7.3820*10^-4);
-Cl = W./(0.5.*rho.*V.^2.*S);
-Cd = Cd0 + (Cl.^2)./(pi*e*AR);
 TSFC = (3000/11.06)/Ta20k;
 ct = TSFC/3600;
-R =  @(rho,V) (2*sqrt(2./(rho.*S))*(1/ct).*((sqrt(Cl))./Cd)*(sqrt(18000)-sqrt(15000)));
-FinalRanges = R(rho,V);
-rhomin = min(rho)
-VhighRange = max(R(FinalRanges,V))
-MaxRange = max(FinalRanges);
+
 %% Specified Plots
 
 %%%%%%%%
@@ -147,26 +138,40 @@ hold off
 
 %%%%%%%%
 % 1) What's their maximum range, and at what velocity and altitude?
-% Maximum range for a given happens at the velocity where the T/V line is tangent to
-% the Tr plot
-figure(6), hold on, grid on
-fplot(Tr35k, [350 1000]), fplot(Ta35k, [0 1000])
-Ta35kFunc = @(V) Ta35k + (0*V);
-T35k = [600:0.5:700; Tr35k(600:0.5:700), Ta35k()]';
-% A = 1.8913043477
-% rho = 0.0023769:-0.00000165277:0.00072413
-% V = 0:00.9:900
-% Tr = W./((W./(((.5).*rho.*(V.^2)) * S))./(Cd0 + (((W./(((.5).*rho.*(V.^2)) * S)).^2)/(pi*e*AR))));
-% 
-% 
-% Cl = (W./(0.5.*rho.*V.^2*S));
-% Cd = Cd0 +((Cl.^2)/(pi*e*AR));
-% R = 2.*(sqrt(2./(rho.*S))).*(1/ct).*((sqrt(Cl))./Cd).*(sqrt(18000)-sqrt(15000))
+% Maximum range occurs at the highest altitudes - so take abs ceiling of
+% 35k
+Cl12Cd35k = @(V) (((W./(((.5).*rho35k.*(V.^2)) .* S))).^(0.5)./(Cd0 + (((W./(((.5).*rho35k.*(V.^2)) .* S)).^2)./(pi.*e.*AR))));
+V = 0:0.001:1000;
+[maxCl12Cd35k, I] = max(Cl12Cd35k(V));
+VelMaxRange = V(I);
+
+figure(6)
+fplot(Tr35k, [150 1000]), hold on, grid on
+minTV35k = min(Tr35k(150:.01:1000)./(150:.01:1000));
+fplot(@(V) minTV35k*V, [0 1000])
+fplot(@(V) minTV35k*V, [0 1000])
+plot(VelMaxRange,Tr35k(VelMaxRange),'g*')
+xlabel('Velocity [ft/s]')
+ylabel('Thrust Required')
+% ANSWER
+R = 2*sqrt(2/(rho35k*S))*(1/ct)*maxCl12Cd35k*(W^(0.5)-12000^(0.5));
+%%%%%%%%
+
+% 2)
+W0 = 18000;
+W1 = 13000;
+rho = (2.3769*10^-3):-0.0000001:(7.382*10^-4);
+VMaxE = 1:0.061020259:1001;
+ClE = W./(rho.*VMaxE.^2.*S);
+CdE = Cd0 + ((ClE.^2)./(pi*e*AR));
+LoD = (0.5.*rho.*VMaxE.^2.*S.*ClE);
+E = (1/ct).*(LoD).*log(W0./W1);
+plot(VMaxE,Tr35k(VMaxE));
+MaxEndurance = max(E);
 
 %%%%%%%%
 % 3) The helicarrier has an operating altitude of 15,000 ft. If these aircrafts engage the
 % helicarrier, what�s the max duration could they operate?
-
 % need to find max endurance at 15,000 ft
 
 % Figure 7
@@ -174,13 +179,8 @@ figure(7), hold on, grid on
 title('Thrust Required and Thrust Available [lb_f] vs Velocity [ft/s] at 15,000 [ft]')
 xlabel('Velocity [ft/s]'), ylabel('Thrust [lb_f]'), xlim([0 900]), ylim([0 6000])
 fplot(Tr15k, [150 900]), plot([0 900], [Ta15k Ta15k])
-
-[vel, tr] = fminbnd(Tr15k, 200, 400)
-plot(vel, tr, 'r.', 'MarkerSize', 15)
 legend('Thrust Required', 'Thrust Available', 'Location', 'southeast')
 hold off
-
-
 
 %%%%%%%%
 % 4) What�s their best absolute and service ceiling? And at what velocities?
@@ -228,9 +228,9 @@ negativeRC34k = @(V) -1*RC34k(V);
 velAtMaxRCSL; maxRCSL;
 
 %%
-Velocity = [0 0 velAtMaxRC35k velAtMaxRC34k]; % Various Velocities
-% Q1 = [Range Velocity(1,1) Altitude(1,1)];
-% Q2 = [Endurance Velocity(1,2) Altitude(1,3)];
+Velocity = [VelMaxRange VMaxE velAtMaxRC35k velAtMaxRC34k]; % Various Velocities
+Q1 = [R Velocity(1,1) absCeiling];
+% Q2 = [E Velocity(1,2) rho)];
 % Q3 = [Duration]
 Q4 = table([absCeiling Velocity(1,3); serviceCeil Velocity(1,4)]);      %Table for Question 4 Answers
 %Q5 = table(RCSL);                                                       %Table for Q5 Answers
